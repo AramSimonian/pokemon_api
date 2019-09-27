@@ -19,20 +19,35 @@ def extract_ft_for_language(pokemon_response, language_code):
     # from all the different game versions
     return ft_for_language
 
+def extract_translation(shakespeare_response):
+    return shakespeare_response.json()["contents"]["translated"]
+
+def get_pokemon_response(pokemon_name):
+    return requests.get('https://pokeapi.co/api/v2/pokemon-species/%s' % pokemon_name)
+
+def get_shakespearean_response(modern_english):
+    querystring = {'text':modern_english}
+    return requests.request("GET",'https://api.funtranslations.com/translate/shakespeare.json', params=querystring)
 
 @app.route('/pokemon/<string:pokemon_name>')
 def get_pokemon_by_name(pokemon_name):
     try:
-        response = requests.get('https://pokeapi.co/api/v2/pokemon-species/%s' % pokemon_name)
+        pokemon_response = get_pokemon_response(pokemon_name)
 
-        ft_for_language_all = extract_ft_for_language(response.json(), language_code)
+        ft_for_language_all = extract_ft_for_language(pokemon_response.json(), language_code)
 
         # Just choose the first description until requirements change
         pokemon_description = ft_for_language_all[0]
 
-        
+        # Translate the description to Shakespearean English
+        shakespeare_response = get_shakespearean_response(pokemon_description)
+        shakespeare_translation = extract_translation(shakespeare_response)
+        output = {
+            'name':pokemon_name,
+            'description':shakespeare_translation
+        }
 
-        return jsonify(pokemon_description)
+        return jsonify(output)
     except:
         return 'Sorry, that Pokemon name was not found'
 
