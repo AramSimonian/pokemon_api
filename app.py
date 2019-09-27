@@ -6,9 +6,10 @@ language_code = "en"
 
 app = Flask(__name__)
 
-def extract_ft_for_language(flavor_text_entries, language_code):
+def extract_ft_for_language(pokemon_response, language_code):
+    fte_all = pokemon_response["flavor_text_entries"]
     ft_for_language = []
-    for fte in flavor_text_entries:
+    for fte in fte_all:
         # The language code is stored within a sub-dictionary
         if fte["language"]["name"] == language_code:
             # \n will break the API call
@@ -24,11 +25,9 @@ def get_pokemon_by_name(pokemon_name):
     try:
         response = requests.get('https://pokeapi.co/api/v2/pokemon-species/%s' % pokemon_name)
 
-        fte_all = response.json()["flavor_text_entries"]
-        ft_for_language_all = extract_ft_for_language(fte_all, language_code)
+        ft_for_language_all = extract_ft_for_language(response.json(), language_code)
 
-        # Just choose the first description
-        # until requirements change
+        # Just choose the first description until requirements change
         pokemon_description = ft_for_language_all[0]
 
         
