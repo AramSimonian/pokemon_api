@@ -1,0 +1,14 @@
+test_name: Correctly formatted call to the Pokemon API succeeds
+
+stages:
+    name: Make sure that an invalid name fails
+    request:
+      url: http://localhost:5000/pokemon
+      json:
+        name: charizard
+      method: GET
+      headers:
+        content-type: application/json
+    response:
+      status_code: 404
+      
