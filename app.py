@@ -6,14 +6,19 @@ language_code = "en"
 
 app = Flask(__name__)
 
+def clean_string(source_string):
+    output = source_string.replace('\n', '')
+    output = output.replace('  ', ' ')
+    return output
+
 def extract_ft_for_language(pokemon_response, language_code):
     fte_all = pokemon_response["flavor_text_entries"]
     ft_for_language = []
     for fte in fte_all:
         # The language code is stored within a sub-dictionary
         if fte["language"]["name"] == language_code:
-            # \n will break the API call
-            ft_for_language.append(fte["flavor_text"].replace('\n', ' '))
+            # line breaks will break the API call
+            ft_for_language.append(clean_string(fte["flavor_text"]))
 
     # This will contain a list of descriptions for a character
     # from all the different game versions
@@ -30,7 +35,7 @@ def get_shakespearean_response(modern_english):
     return requests.request("GET",'https://api.funtranslations.com/translate/shakespeare.json', params=querystring)
 
 @app.route('/pokemon/<string:pokemon_name>')
-def get_pokemon_by_name(pokemon_name):
+def get_pokemon_translation(pokemon_name):
     try:
         pokemon_response = get_pokemon_response(pokemon_name)
 
@@ -39,16 +44,20 @@ def get_pokemon_by_name(pokemon_name):
         # Just choose the first description until requirements change
         pokemon_description = ft_for_language_all[0]
 
-        # Translate the description to Shakespearean English
-        shakespeare_response = get_shakespearean_response(pokemon_description)
-        shakespeare_translation = extract_translation(shakespeare_response)
-        output = {
-            'name':pokemon_name,
-            'description':shakespeare_translation
-        }
+        try:
+            # Translate the description to Shakespearean English
+            shakespeare_response = get_shakespearean_response(pokemon_description)
+            description_output = extract_translation(shakespeare_response)
+        except:
+            description_output = "Error calling Shakespeare API (site lists a limit of five calls per hour)"
+        finally:
+            output = {
+                "name" : pokemon_name,
+                "description" : description_output
+            }
 
-        return jsonify(output)
+        return output
     except:
-        return 'Sorry, that Pokemon name was not found'
+        return 'Error calling Pokemon API'
 
 app.run(port=5000)
