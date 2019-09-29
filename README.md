@@ -1,5 +1,5 @@
 # pokemon_api
-REST API that accepts a Pokémon character name and returns its description, translated into Shakespearean English
+REST API that accepts a Pokémon character name and returns its description, translated into Shakespearean English.
 
 ## Installation
 Start by installing Python for your OS:
@@ -44,3 +44,18 @@ The output will be of the form:
   "description": "Charizard flies 'round the sky in search of powerful opponents. 't breathes fire of such most wondrous heat yond 't melts aught. However, 't nev'r turns its fiery breath on any opponent weaker than itself."
 }
 ```
+
+## Notes
+This project makes use of two publically available APIs.
+
+Pokemon API:
+```
+https://pokeapi.co/docs/v2.html
+```
+
+Shakespeare translator:
+```
+https://funtranslations.com/api/shakespeare
+```
+
+The translator API is rate-limited to five calls an hour.
